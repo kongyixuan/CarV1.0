@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
+    xmlns:tx="http://www.springframework.org/schema/tx"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans 
+           http://www.springframework.org/schema/beans/spring-beans-2.0.xsd
+           http://www.springframework.org/schema/aop 
+           http://www.springframework.org/schema/aop/spring-aop-2.0.xsd
+           http://www.springframework.org/schema/tx 
+           http://www.springframework.org/schema/tx/spring-tx-2.0.xsd"
+    default-autowire="autodetect" default-lazy-init="false">
+
+    <!-- jedis 配置 -->
+    <bean id="jedisPoolConfig" class="redis.clients.jedis.JedisPoolConfig">  
+        <property name="maxIdle" value="${redis.maxIdle}" />  
+        <property name="maxTotal" value="${redis.maxTotal}" />  
+        <property name="maxWaitMillis" value="${redis.maxWaitMillis}" />  
+        <property name="testOnBorrow" value="${redis.testOnBorrow}" />  
+    </bean>
+    
+    <!-- jedis 连接池  -->
+    <bean id="jedisPool" class="redis.clients.jedis.JedisPool">
+        <constructor-arg ref="jedisPoolConfig" />
+        <constructor-arg value="${redis.host}" />
+        <constructor-arg value="${redis.port}" type="java.lang.Integer" />
+    </bean>
+    
+    <!-- jedis 操作 temple  -->
+    <bean id="jedisTemple" class="com.cxypub.baseframework.sdk.cache.JedisTemple">
+        <constructor-arg ref="jedisPool" />
+    </bean>
+    
+    <!-- jedis 客户端，真正提供给系统使用的客户端，当然如果这个客户端的方法不满足，可以使用jedisTemple -->
+    <bean id="jedisClient" class="com.cxypub.baseframework.sdk.cache.RedisCacheClient">
+        <constructor-arg ref="jedisTemple" />
+    </bean>
+</beans>
